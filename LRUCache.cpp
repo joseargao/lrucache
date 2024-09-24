@@ -1,35 +1,33 @@
 #include "LRUCache.h"
 
-LRUCache::LRUCache(int capacity) {
+LRUCache::LRUCache(unsigned long capacity) {
     this->capacity = capacity;
 }
 
 int LRUCache::get(int key) {
     if (itemMap.find(key) == itemMap.end()) {
-        return -1;  // Key not found
+        return -1; // Key not found
     }
-    // Move the accessed key to the front of the list
-    itemKeys.splice(itemKeys.begin(), itemKeys, std::find(itemKeys.begin(), itemKeys.end(), key));
-    return itemMap[key];  // Return the value associated with the key
+    // Move the accessed item to the front of the list
+    itemList.splice(itemList.begin(), itemList, itemMap[key]);
+    return itemMap[key]->second; // Return the value
 }
 
 void LRUCache::put(int key, int value) {
     if (itemMap.find(key) != itemMap.end()) {
-        // Key exists, update value and move key to front
-        itemKeys.splice(itemKeys.begin(), itemKeys, std::find(itemKeys.begin(), itemKeys.end(), key));
-        itemMap[key] = value;  // Update the value
+        // Key exists, update the value and move it to the front
+        itemList.splice(itemList.begin(), itemList, itemMap[key]);
+        itemMap[key]->second = value; // Update the value
         return;
     }
 
-    // Check if the cache is full
-    if (itemKeys.size() == capacity) {
-        // Remove the least recently used item (back of the list)
-        int lruKey = itemKeys.back();  // Get the least recently used key
-        itemMap.erase(lruKey);         // Remove it from the map
-        itemKeys.pop_back();            // Remove it from the list
+    if (itemMap.size() == capacity) {
+        // Cache is full, remove the least recently used item
+        itemMap.erase(itemList.back().first);
+        itemList.pop_back();
     }
 
-    // Insert the new key-value pair
-    itemKeys.push_front(key);          // Add new key to the front of the list
-    itemMap[key] = value;              // Store key-value pair in the map
+    // Insert the new key-value pair at the front of the list
+    itemList.emplace_front(key, value);
+    itemMap[key] = itemList.begin(); // Update the map with the new iterator
 }

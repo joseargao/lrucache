@@ -3,15 +3,15 @@
 
 #include <list>
 #include <unordered_map>
-#include <algorithm>
+#include <utility>
 
 class LRUCache {
     unsigned long capacity;
-    std::list<int> itemKeys;  // List to store keys in order of access
-    std::unordered_map<int, int> itemMap;  // Map to store key-value pairs
+    std::list<std::pair<int, int>> itemList; // Store key-value pairs
+    std::unordered_map<int, std::list<std::pair<int, int>>::iterator> itemMap; // Map keys to list iterators
 
 public:
-    LRUCache(int capacity);
+    LRUCache(unsigned long capacity);
 
     int get(int key);
     void put(int key, int value);
